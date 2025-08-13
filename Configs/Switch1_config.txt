@@ -1,0 +1,46 @@
+enable
+configure terminal
+hostname SW1
+enable secret Switch1EnablePass
+banner motd #Unauthorized Access Prohibited#
+
+! Create VLANs
+vlan 10
+ name VLAN10
+vlan 20
+ name VLAN20
+vlan 30
+ name VLAN30
+vlan 99
+ name MANAGEMENT
+
+! Assign ports to VLANs
+interface range GigabitEthernet0/1-3
+ switchport mode access
+interface Gig0/1
+ switchport access vlan 10
+interface Gig0/2
+ switchport access vlan 20
+interface Gig0/3
+ switchport access vlan 30
+
+! Configure trunk to router
+interface Gig0/4
+ switchport trunk native vlan 99
+ switchport mode trunk
+
+! Management interface
+interface Vlan99
+ ip address 192.168.99.2 255.255.255.0
+ no shutdown
+ip default-gateway 192.168.99.1
+
+! Enable SSH
+ip domain-name ccna-lab.com
+crypto key generate rsa modulus 1024
+username admin secret AdminPass123
+line vty 0 15
+ transport input ssh
+ login local
+end
+copy running-config startup-config
